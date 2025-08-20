@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+const Message = require("../models/Message");
 
 // Register
 router.post("/register", async (req, res) => {
@@ -25,5 +26,35 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.get('/most-active-user', async (req, res) => {
+  try {
+    const activeusers = await Message.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "users"
+        }
+      },
+      { $unwind: "$users" },
+      {
+        $group: {
+          _id: "$userId",
+          username: { $first: "$users.username" },
+          msgCount: { $sum: 1 }
+        }
+      },
+      { $sort: { msgCount: -1 } },
+      { $limit: 1 }
+    ]);
+
+    res.status(200).json({ data: activeusers })
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+
+  }
+})
 
 module.exports = router;

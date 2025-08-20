@@ -5,7 +5,7 @@ const Room = require("../models/Room");
 // Create Room
 router.post("/", async (req, res) => {
   try {
-    const { name, createdBy,users } = req.body;
+    const { name, createdBy } = req.body;
     const room = new Room({ name, createdBy });
     await room.save();
     res.json(room);
