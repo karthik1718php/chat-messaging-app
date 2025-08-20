@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Chat</title>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <h2>Simple Chat App</h2>
+  <ul id="messages"></ul>
+  <input id="msg" autocomplete="off" placeholder="Type message..." />
+  <button id="sendBtn">Send</button>
+
+  <script>
+    const socket = io();
+
+    const input = document.getElementById("msg");
+    const sendBtn = document.getElementById("sendBtn");
+    const messages = document.getElementById("messages");
+
+    sendBtn.onclick = () => {
+      // const msg = {text:input.value,senderFrom:"karthik",sendTo:"arun"};
+      const test = input.value
+      socket.emit("chatMessage", test,"898");
+      input.value = "";
+    };
+
+    socket.on("chatMessage", (msg) => {
+      const li = document.createElement("li");
+      li.textContent = msg;
+      messages.appendChild(li);
+    });
+
+
+
+    io.emit → sends to everyone globally (bad here).
+
+socket.to(roomId).emit → sends only to others in the room, not the sender.
+
+io.to(roomId).emit → sends to all in the room (including sender).
+  </script>
+</body>
+</html>

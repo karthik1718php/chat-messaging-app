@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Chat Room</title>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <h2>Join Chat Room</h2>
+  <input id="username" placeholder="Enter your name" />
+  <input id="room" placeholder="Enter room name" />
+  <button onclick="joinRoom()">Join</button>
+
+  <div id="chatBox" style="margin-top:20px; display:none;">
+    <div id="messages" style="border:1px solid #ccc; height:200px; overflow-y:scroll;"></div>
+    <input id="messageInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    const socket = io();
+    let roomName = "";
+    let userName = "";
+
+    function joinRoom() {
+      userName = document.getElementById("username").value;
+      roomName = document.getElementById("room").value;
+      socket.emit("joinRoom", roomName, userName);
+      document.getElementById("chatBox").style.display = "block";
+    }
+
+    socket.on("joinRoom", (data) => {
+      console.log(data.message);
+      const li = document.createElement("li");
+      li.textContent = data.message;
+      li.style.fontStyle = "italic";
+      li.style.color = "green";
+      document.getElementById("messages").appendChild(li);
+    });
+
+//     socket.on("joinRoom", (data) => {
+//   const li = document.createElement("li");
+//   li.textContent = data.message;
+//   li.style.fontStyle = "italic";
+//   li.style.color = "green";
+//   document.getElementById("messages").appendChild(li);
+// });
+
+    function sendMessage() {
+      const text = document.getElementById("messageInput").value;
+      socket.emit("chatMessage", { roomName, user: userName, text });
+      document.getElementById("messageInput").value = "";
+    }
+
+    socket.on("chatMessage", (data) => {
+      const msgBox = document.getElementById("messages");
+      msgBox.innerHTML += `<p><strong>${data.user}:</strong> ${data.text}</p>`;
+      msgBox.scrollTop = msgBox.scrollHeight;
+    });
+  </script>
+</body>
+
+</html>
