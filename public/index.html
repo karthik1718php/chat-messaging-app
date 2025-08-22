@@ -25,7 +25,8 @@
 
     function joinRoom() {
       userName = document.getElementById("username").value;
-      roomName = document.getElementById("room").value;
+      roomName = "68a5c0902ff333c0070024d2";
+      // roomName = document.getElementById("room").value;
       socket.emit("joinRoom", roomName, userName);
       document.getElementById("chatBox").style.display = "block";
     }

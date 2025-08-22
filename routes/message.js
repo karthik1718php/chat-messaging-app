@@ -60,10 +60,36 @@ router.get('/dailymessage', async (req, res) => {
 // Get chat history
 router.get("/:roomId", async (req, res) => {
   try {
-    const messages = await Message.find({ roomId: req.params.roomId })
-      .populate("userId", "username")
-      .sort({ createdAt: 1 });
-    res.json(messages);
+    const messages = await Message.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      { $unwind: "$user" },
+      {
+        $lookup: {
+          from: "rooms",
+          localField: "roomId",
+          foreignField: "_id",
+          as: "room"
+        }
+      },
+      { $unwind: "$room" },
+      {
+        $project: {
+          userName: "$user.username",
+          msg: "$text",
+          roomName: "$room.name"
+        }
+      }
+
+    ])
+    res.status(200).json({ success: true, data: messages });
+
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
